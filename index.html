@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>IF plan</title>
+<meta name="theme-color" content="#3C3639">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="IF plan">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#3C3639; --cream:#F3EAE0; --muted:rgba(243,234,224,.55);
+  --lav:185,180,224; --coral:232,128,95; --pink:233,179,200;
+  --serif:'Lora',Georgia,serif; --sans:-apple-system,'SF Pro Text',system-ui,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--cream);font-family:var(--sans)}
+body{min-height:100vh;padding:calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 16px);max-width:480px;margin:0 auto}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.logo{font-family:var(--serif);font-size:22px;font-weight:600;letter-spacing:.02em}
+.logo i{font-weight:500;color:var(--muted)}
+.logo b{display:inline-block;width:5px;height:5px;border-radius:50%;background:rgb(var(--coral));margin:0 6px 4px}
+#gear{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:var(--muted)}
+#gear svg{width:22px;height:22px}
+
+/* Today card */
+#card{border-radius:22px;padding:20px;background:rgba(var(--c),.14);border:1px solid rgba(var(--c),.35);transition:background .25s,border-color .25s}
+#card .where{font-size:13px;color:var(--muted)}
+#card h1{font-family:var(--serif);font-weight:500;font-size:30px;line-height:1.15;margin:6px 0 2px}
+#card .type{font-family:var(--serif);font-size:21px;color:rgb(var(--c))}
+#card .label{font-size:16px;margin-top:2px}
+#card .hint{font-size:13px;color:var(--muted);margin-top:12px}
+.row{display:flex;gap:10px;margin-top:14px;align-items:center;flex-wrap:wrap}
+.pill{padding:9px 14px;border-radius:999px;border:1px solid rgba(243,234,224,.3);font-size:14px}
+.tog{display:flex;align-items:center;gap:10px;font-size:15px;padding:6px 0}
+.sw{width:42px;height:25px;border-radius:99px;background:rgba(243,234,224,.18);position:relative;transition:.2s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:19px;height:19px;border-radius:50%;background:var(--cream);transition:.2s}
+.tog[aria-pressed=true] .sw{background:rgb(var(--c))}
+.tog[aria-pressed=true] .sw::after{left:20px;background:var(--bg)}
+
+/* Calendar */
+.mhead{display:flex;align-items:center;justify-content:space-between;margin:22px 4px 8px}
+.mhead h2{font-family:var(--serif);font-weight:500;font-size:20px;margin:0}
+.mhead button{width:44px;height:36px;font-size:20px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.dow{font-size:12px;text-align:center;color:var(--muted);padding-bottom:2px}
+.cell{aspect-ratio:1/1.08;border-radius:12px;position:relative;font-size:15px;display:grid;place-items:center;background:rgba(243,234,224,.07);color:var(--muted)}
+.cell.p{background:rgba(var(--c),.2);color:var(--cream)}
+.cell.today{font-weight:700}
+.cell.today::before{content:"";position:absolute;bottom:6px;width:4px;height:4px;border-radius:50%;background:var(--cream)}
+.cell.sel{outline:1.5px solid var(--cream);outline-offset:1px}
+.cell .tick{position:absolute;top:4px;right:6px;font-size:10px;opacity:.7}
+.cell.empty{background:none;pointer-events:none}
+.key{display:flex;gap:16px;justify-content:center;margin-top:16px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.key span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;background:rgb(var(--c))}
+
+/* Settings */
+dialog{background:#4B4447;color:var(--cream);border:1px solid rgba(243,234,224,.15);border-radius:22px;padding:22px;width:min(340px,calc(100vw - 32px))}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+dialog h3{font-family:var(--serif);font-weight:500;font-size:22px;margin:0 0 6px}
+dialog p{font-size:14px;color:var(--muted);margin:0 0 14px;line-height:1.45}
+dialog .btn{display:block;width:100%;padding:13px;border-radius:14px;border:1px solid rgba(243,234,224,.3);margin-top:8px;font-size:16px}
+dialog .btn.go{background:rgb(var(--coral));color:var(--bg);border-color:transparent;font-weight:600}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">IF<b></b><i>plan</i></div>
+  <button id="gear" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg></button>
+</header>
+
+<section id="card"></section>
+
+<div class="mhead">
+  <button id="prev" aria-label="Previous month">‹</button>
+  <h2 id="mtitle"></h2>
+  <button id="next" aria-label="Next month">›</button>
+</div>
+<div class="grid" id="cal"></div>
+<div class="key">
+  <span style="--c:var(--lav)">Intermittent fasting</span>
+  <span style="--c:var(--coral)">Fasting</span>
+  <span style="--c:var(--pink)">Keto</span>
+</div>
+
+<dialog id="dlg"></dialog>
+
+<script>
+const DAY = 864e5, KEY = 'ifplan.v1';
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
+// A date is stored as a whole number of days since 1970 (avoids time-zone bugs).
+const dn  = (y, m, d) => Math.floor(Date.UTC(y, m, d) / DAY);
+const dt  = n => new Date(n * DAY);
+const dow = n => (dt(n).getUTCDay() + 6) % 7;            // Monday = 0
+const nowDay = () => { const t = new Date(); return dn(t.getFullYear(), t.getMonth(), t.getDate()); };
+const fmt = n => `${DAYS[dow(n)]} ${dt(n).getUTCDate()} ${MONTHS[dt(n).getUTCMonth()]}`;
+
+// ---- saved data ----
+let state;
+try { state = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+if (!state || !state.segs) state = { segs: [{ s: dn(2026, 9, 12), b: 'A' }], off: [] };
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} };
+
+// ---- the plan ----
+function plan(n) {
+  const seg = [...state.segs].reverse().find(x => x.s <= n);
+  if (!seg) return null;
+  const off = n - seg.s, bi = Math.floor(off / 28);
+  const block = bi % 2 === 0 ? seg.b : (seg.b === 'A' ? 'B' : 'A');
+  const w = Math.floor((off % 28) / 7), d = off % 7, wed = d === 2;
+  let c, name, label;
+  if (block === 'B' && w === 0) { c = 'coral'; name = 'Fasting'; label = 'Water and supplements only'; }
+  else if (wed)                 { c = 'coral'; name = 'Fasting'; label = 'No food today'; }
+  else if (block === 'B' && w === 1) { c = 'pink'; name = 'Intermittent fasting'; label = 'Keto'; }
+  else { c = 'lav'; name = 'Intermittent fasting'; label = (block === 'A' && w < 2) ? 'Sugar allowed' : 'Sugar-free'; }
+  return { block, w, d, c, name, label };
+}
+const done = n => n < nowDay() && plan(n) && !state.off.includes(n);
+
+// ---- screen ----
+let today = nowDay(), sel = today, view = { y: dt(today).getUTCFullYear(), m: dt(today).getUTCMonth() };
+const $ = id => document.getElementById(id);
+
+function renderCard() {
+  const p = plan(sel), el = $('card');
+  el.style.setProperty('--c', `var(--${p ? p.c : 'lav'})`);
+  if (!p) {
+    el.style.setProperty('--c', '243,234,224');
+    el.innerHTML = `<div class="where">${fmt(sel)}</div><h1>Not started yet</h1><div class="label">Your plan begins ${fmt(state.segs[0].s)}.</div>` + back();
+    return;
+  }
+  const meals = p.c === 'coral' ? '' : 'You usually eat around 10:00 and 16:00.';
+  let tog = '';
+  if (sel < today) tog = `<button class="tog" id="tog" aria-pressed="${done(sel)}"><span class="sw"></span>Completed</button>`;
+  el.innerHTML = `<div class="where">${fmt(sel)} · Block ${p.block} · Week ${p.w + 1} of 4</div>
+    <h1>${sel === today ? 'Today' : DAYS[dow(sel)]}</h1>
+    <div class="type">${p.name}</div><div class="label">${p.label}</div>
+    ${meals ? `<div class="hint">${meals}</div>` : ''}
+    <div class="row">${tog}${back().replace('<div class="row">','').replace('</div>','')}</div>`;
+  const t = $('tog');
+  if (t) t.onclick = () => {
+    const i = state.off.indexOf(sel);
+    i < 0 ? state.off.push(sel) : state.off.splice(i, 1);
+    save(); render();
+  };
+}
+function back() { return sel === today ? '' : `<div class="row"><button class="pill" onclick="go(${today})">Back to today</button></div>`; }
+function go(n) { sel = n; view = { y: dt(n).getUTCFullYear(), m: dt(n).getUTCMonth() }; render(); }
+
+function renderCal() {
+  $('mtitle').textContent = `${MONTHS[view.m]} ${view.y}`;
+  const first = dn(view.y, view.m, 1), len = new Date(Date.UTC(view.y, view.m + 1, 0)).getUTCDate();
+  let h = ['M','T','W','T','F','S','S'].map(x => `<div class="dow">${x}</div>`).join('');
+  for (let i = 0; i < dow(first); i++) h += '<div class="cell empty"></div>';
+  for (let i = 0; i < len; i++) {
+    const n = first + i, p = plan(n);
+    h += `<button class="cell${p ? ' p' : ''}${n === today ? ' today' : ''}${n === sel ? ' sel' : ''}"
+      ${p ? `style="--c:var(--${p.c})"` : ''} data-n="${n}" aria-label="${fmt(n)}">${i + 1}${done(n) ? '<span class="tick">✓</span>' : ''}</button>`;
+  }
+  $('cal').innerHTML = h;
+  $('cal').querySelectorAll('[data-n]').forEach(b => b.onclick = () => { sel = +b.dataset.n; render(); });
+}
+function render() { renderCard(); renderCal(); }
+
+$('prev').onclick = () => { view.m--; if (view.m < 0) { view.m = 11; view.y--; } renderCal(); };
+$('next').onclick = () => { view.m++; if (view.m > 11) { view.m = 0; view.y++; } renderCal(); };
+
+// ---- settings ----
+const dlg = $('dlg');
+$('gear').onclick = () => { menu(); dlg.showModal(); };
+function menu() {
+  dlg.innerHTML = `<h3>Restart</h3><p>Pick a block to start over. It begins on the next Monday, and your current plan continues until then.</p>
+    <button class="btn" onclick="ask('A')">Restart Block A</button>
+    <button class="btn" onclick="ask('B')">Restart Block B</button>
+    <button class="btn" onclick="dlg.close()">Close</button>`;
+}
+function nextMonday() { return today + (7 - dow(today)); }
+function ask(b) {
+  dlg.innerHTML = `<h3>Restart Block ${b}?</h3><p>Block ${b} will begin on ${fmt(nextMonday())}. Until then, the current plan continues.</p>
+    <button class="btn go" onclick="restart('${b}')">Confirm</button>
+    <button class="btn" onclick="menu()">Back</button>`;
+}
+function restart(b) {
+  const s = nextMonday();
+  state.segs = state.segs.filter(x => x.s < s);
+  state.segs.push({ s, b });
+  save(); dlg.close(); go(s);
+}
+
+// keep "today" correct if the app stays open overnight
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && nowDay() !== today) {
+    const was = sel === today; today = nowDay(); if (was) sel = today; render();
+  }
+});
+render();
+</script>
+</body>
+</html>
